@@ -1,4 +1,4 @@
-name: MLflow CI
+name: MLflow CI (Safe Mode)
 
 on:
   push:
@@ -17,9 +17,11 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install MLflow
-        run: pip install mlflow
-
-      - name: Run MLflow Project
+      - name: Install dependencies
         run: |
-          mlflow run MLProject
+          pip install mlflow pandas scikit-learn
+
+      - name: Run training script directly
+        run: |
+          python MLProject/modelling.py
+
