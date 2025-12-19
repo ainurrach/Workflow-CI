@@ -7,10 +7,6 @@ Original file is located at
     https://colab.research.google.com/drive/1DYMX3L8UF1JVJeR0SWy-KGBTVEV9Qiv_
 """
 
-!pip install -U mlflow dagshub scikit-learn pandas matplotlib seaborn
-
-# 1. Install library yang dibutuhkan
-!pip install mlflow pyngrok -q
 
 import mlflow
 import mlflow.sklearn
