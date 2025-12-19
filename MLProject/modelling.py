@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import mlflow
 import mlflow.sklearn
@@ -6,19 +7,33 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 
-# Aktifkan autolog
+# ===============================
+# Konfigurasi MLflow (WAJIB di CI)
+# ===============================
+mlflow.set_tracking_uri("file:./mlruns")
+mlflow.set_experiment("CI_Training_Experiment")
 mlflow.sklearn.autolog()
 
 def train_model():
     print("Start training...")
+    print("Current working directory:", os.getcwd())
+    print("Files in directory:", os.listdir())
 
-    # Dataset HARUS ada di repo
     DATA_PATH = "bank_marketing_preprocessing.csv"
-    df = pd.read_csv(DATA_PATH)
 
+    if not os.path.exists(DATA_PATH):
+        raise FileNotFoundError(
+            f"Dataset '{DATA_PATH}' tidak ditemukan. "
+            f"Pastikan file ada di root repository."
+        )
+
+    df = pd.read_csv(DATA_PATH)
     df = df.dropna()
 
     target_col = "y" if "y" in df.columns else "deposit"
+    if target_col not in df.columns:
+        raise ValueError(f"Target column '{target_col}' tidak ditemukan")
+
     X = df.drop(columns=[target_col])
     y = df[target_col]
 
@@ -28,7 +43,7 @@ def train_model():
         X, y, test_size=0.2, random_state=42
     )
 
-    with mlflow.start_run(run_name="CI_Training"):
+    with mlflow.start_run(run_name="RandomForest_CI"):
         model = RandomForestClassifier(
             n_estimators=100,
             max_depth=10,
@@ -40,8 +55,10 @@ def train_model():
         acc = accuracy_score(y_test, preds)
 
         mlflow.log_metric("accuracy", acc)
-        print("Training finished")
+
+        print("Training finished successfully")
         print("Accuracy:", acc)
 
 if __name__ == "__main__":
     train_model()
+
