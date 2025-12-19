@@ -24,5 +24,3 @@ jobs:
 
       - name: Run modelling script
         run: python modelling.py
-
-
