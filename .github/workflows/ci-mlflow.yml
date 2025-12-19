@@ -1,11 +1,11 @@
-name: CI Run Modelling Script
+name: CI MLflow Training and Docker Build
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  run-model:
+  train-and-docker:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,15 +20,33 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install mlflow
 
-      - name: Run modelling script
-        run: python modelling.py
+      - name: Run MLflow Project (training)
+        run: |
+          mlflow run .
 
       - name: Upload MLflow artifacts
         uses: actions/upload-artifact@v4
         with:
           name: mlflow-artifacts
           path: mlruns/
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image with MLflow
+        run: |
+          mlflow build-docker \
+            --name ${{ secrets.DOCKER_USERNAME }}/workflow-ci-mlflow \
+            .
+
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/workflow-ci-mlflow
+
 
 
