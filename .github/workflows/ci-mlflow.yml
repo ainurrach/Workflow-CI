@@ -24,3 +24,11 @@ jobs:
 
       - name: Run modelling script
         run: python modelling.py
+
+      - name: Upload MLflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlflow-artifacts
+          path: mlruns/
+
+
