@@ -1,5 +1,15 @@
-name: workflow-ci-mlflow
+name: bank_marketing_mlflow
+
+conda_env: conda.yaml
 
 entry_points:
   main:
-    command: "python modelling.py"
+    parameters:
+      data_path: {type: str}
+      n_estimators: {type: int, default: 100}
+      max_depth: {type: int, default: 10}
+    command: >
+      python modelling.py
+      --data_path {data_path}
+      --n_estimators {n_estimators}
+      --max_depth {max_depth}
